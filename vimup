@@ -1,0 +1,115 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+require 'rubygems'
+require 'highline/import'
+require 'mechanize'
+
+
+
+
+def load_vimup_file(filename)
+  _ = YAML.load_file filename
+
+  _['versions'].each do |version_info|
+    version_number = version_info.keys[0]
+    if version_info[version_number].class == String
+      version_info[version_number] = {
+        'comment' => version_info[version_number],
+        'required_vim_version' => _['required_vim_version'],
+      }
+    end
+  end
+
+    # TODO: use also pit
+  if ! _.has_key? 'username'
+    _['username'] = ask 'Username: '
+  end
+  if ! _.has_key? 'password'
+    _['password'] = ask('Password: ') {|q| q.echo = false}
+  end
+
+  _
+end
+
+
+
+
+def action_update_details(vimup_info)
+  agent = WWW::Mechanize.new
+
+  # login
+  login_page = agent.get 'http://www.vim.org/login.php'
+  form = login_page.form 'login'
+  form.userName = vimup_info['username']
+  form.password = vimup_info['password']
+  account_page = agent.submit form, form.buttons.first
+  if account_page.uri != URI('http://www.vim.org/account/index.php')
+    raise RuntimeError, 'Failed to login'
+  end
+
+  # edit
+  edit_page = agent.get(
+                'http://www.vim.org/scripts/edit_script.php?script_id=' +
+                vimup_info['script_id']
+              )
+  pp edit_page
+
+  0
+end
+
+
+def action_update_package(vimup_info)
+  pp 'action_update_details', vimup_info
+  0
+end
+
+
+def action_new_package(vimup_info)
+  pp 'action_update_details', vimup_info
+  0
+end
+
+
+
+
+def usage()
+  print <<END
+Usage: vimup {command} {script-name}
+
+{command}
+  update_details
+  update_package
+  new_package
+END
+  exit 1
+end
+
+
+def main()
+  if ARGV.length != 2
+    usage
+  end
+  command_name = ARGV[0].gsub('-', '_')
+  vimup_info_filename = ARGV[1] + '.vimup'
+
+  vimup_info = load_vimup_file vimup_info_filename
+  action = method(
+    case command_name
+    when 'update_details'
+      :action_update_details
+    when 'update_package'
+      :action_update_package
+    when 'new_package'
+      :action_new_package
+    else
+      raise ArgumentError, 'Invalid command ' + command_name.inspect
+    end
+  )
+  action.call vimup_info
+end
+
+exit main
+
+# __END__
