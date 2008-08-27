@@ -46,14 +46,6 @@ class VimupCore
       end
     end
 
-      # TODO: use also pit
-    if ! _.has_key? 'username'
-      @username = ask 'Username: '
-    end
-    if ! _.has_key? 'password'
-      @password = ask('Password: ') {|q| q.echo = false}
-    end
-
     _.each do |k,v|
       if VALID_KEYS.include? k
         instance_variable_set('@' + k, v)
@@ -61,28 +53,34 @@ class VimupCore
     end
   end
 
+  def login()
+    message 'login ...'
+
+      # TODO: use also pit
+    username = ask 'Username: '
+    password = ask('Password: ') {|q| q.echo = false}
+
+    login_page = @agent.get 'http://www.vim.org/login.php'
+    form = login_page.form 'login'
+    form.userName = username
+    form.password = password
+    account_page = @agent.submit form, form.buttons.first
+    if account_page.uri != URI('http://www.vim.org/account/index.php')
+      raise RuntimeError, 'Failed to login'
+    end
+  end
+
   def do_subcommand(subcommand_name)
     message "Start #{subcommand_name} ..."
+    @agent = WWW::Mechanize.new
     method('subcommand_' + subcommand_name.gsub('-', '_')).call
   end
 
   def subcommand_update_details()
-    agent = WWW::Mechanize.new
+    login
 
-    # login
-    message 'login ...'
-    login_page = agent.get 'http://www.vim.org/login.php'
-    form = login_page.form 'login'
-    form.userName = @username
-    form.password = @password
-    account_page = agent.submit form, form.buttons.first
-    if account_page.uri != URI('http://www.vim.org/account/index.php')
-      raise RuntimeError, 'Failed to login'
-    end
-
-    # edit
-    message 'edit ...'
-    edit_page = agent.get(
+    message 'prepare ...'
+    edit_page = @agent.get(
                   'http://www.vim.org/scripts/edit_script.php?script_id=' +
                   @script_id
                 )
@@ -93,7 +91,7 @@ class VimupCore
     form.install_details = @install_details
 
     message 'update ...'
-    result_page = agent.submit form, form.buttons.first
+    result_page = @agent.submit form, form.buttons.first
     if result_page.uri != URI(
         'http://www.vim.org/scripts/script.php?script_id=' +
         @script_id)
@@ -105,7 +103,20 @@ class VimupCore
   end
 
   def subcommand_update_script()
-    pp 'subcommand_update_script'
+    login
+
+    message 'prepare ...'
+    uri_upload_form = (
+        'http://www.vim.org/scripts/add_script_version.php?script_id=' +
+        @script_id
+      )
+    upload_page = @agent.get uri_upload_form
+    if upload_page.uri != URI(uri_upload_form)
+      raise RuntimeError, 'Failed to prepare'
+    end
+    pp upload_page
+
+    message 'update-script has been succeeded'
     0
   end
 
