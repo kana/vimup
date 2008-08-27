@@ -9,70 +9,125 @@ require 'mechanize'
 
 
 
-def load_vimup_file(filename)
-  _ = YAML.load_file filename
+class VimupCore
+  VALID_KEYS = [
+    'detailed_description',
+    'install_details',
+    'required_vim_version',
+    'script_id',
+    'script_name',
+    'script_package',
+    'script_type',
+    'summary',
+    'versions',
+  ]
 
-  _['versions'].each do |version_info|
-    version_number = version_info.keys[0]
-    if version_info[version_number].class == String
-      version_info[version_number] = {
-        'comment' => version_info[version_number],
-        'required_vim_version' => _['required_vim_version'],
-      }
+  def initialize(vimup_info_filename, verbose_p=true)
+    @verbose_p = verbose_p
+    load_vimup_file vimup_info_filename
+  end
+
+  def message(s)
+    print s, "\n" if @verbose_p
+  end
+
+  def load_vimup_file(filename)
+    message "Loading #{filename} ..."
+
+    _ = YAML.load_file filename
+
+    _['versions'].each do |version_info|
+      version_number = version_info.keys[0]
+      if version_info[version_number].class == String
+        version_info[version_number] = {
+          'comment' => version_info[version_number],
+          'required_vim_version' => _['required_vim_version'],
+        }
+      end
+    end
+
+      # TODO: use also pit
+    if ! _.has_key? 'username'
+      @username = ask 'Username: '
+    end
+    if ! _.has_key? 'password'
+      @password = ask('Password: ') {|q| q.echo = false}
+    end
+
+    _.each do |k,v|
+      if VALID_KEYS.include? k
+        instance_variable_set('@' + k, v)
+      end
     end
   end
 
-    # TODO: use also pit
-  if ! _.has_key? 'username'
-    _['username'] = ask 'Username: '
-  end
-  if ! _.has_key? 'password'
-    _['password'] = ask('Password: ') {|q| q.echo = false}
+  def do_subcommand(subcommand_name)
+    message "Start #{subcommand_name} ..."
+    method('subcommand_' + subcommand_name.gsub('-', '_')).call
   end
 
-  _
-end
+  def subcommand_update_details()
+    agent = WWW::Mechanize.new
 
+    # login
+    message 'login ...'
+    login_page = agent.get 'http://www.vim.org/login.php'
+    form = login_page.form 'login'
+    form.userName = @username
+    form.password = @password
+    account_page = agent.submit form, form.buttons.first
+    if account_page.uri != URI('http://www.vim.org/account/index.php')
+      raise RuntimeError, 'Failed to login'
+    end
 
+    # edit
+    message 'edit ...'
+    edit_page = agent.get(
+                  'http://www.vim.org/scripts/edit_script.php?script_id=' +
+                  @script_id
+                )
+    form = edit_page.form 'script'
+    form.script_name = @script_name
+    form.summary = @summary
+    form.description = @detailed_description
+    form.install_details = @install_details
 
+    message 'update ...'
+    result_page = agent.submit form, form.buttons.first
+    if result_page.uri != URI(
+        'http://www.vim.org/scripts/script.php?script_id=' +
+        @script_id)
+      raise RuntimeError, 'Failed to update'
+    end
 
-def action_update_details(vimup_info)
-  agent = WWW::Mechanize.new
-
-  # login
-  login_page = agent.get 'http://www.vim.org/login.php'
-  form = login_page.form 'login'
-  form.userName = vimup_info['username']
-  form.password = vimup_info['password']
-  account_page = agent.submit form, form.buttons.first
-  if account_page.uri != URI('http://www.vim.org/account/index.php')
-    raise RuntimeError, 'Failed to login'
+    message 'update-details has been succeeded'
+    0
   end
 
-  # edit
-  edit_page = agent.get(
-                'http://www.vim.org/scripts/edit_script.php?script_id=' +
-                vimup_info['script_id']
-              )
-  pp edit_page
+  def subcommand_update_script()
+    pp 'subcommand_update_script'
+    0
+  end
 
-  0
-end
-
-
-def action_update_package(vimup_info)
-  pp 'action_update_details', vimup_info
-  0
-end
-
-
-def action_new_package(vimup_info)
-  pp 'action_update_details', vimup_info
-  0
+  def subcommand_new_script()
+    pp 'subcommand_new_script'
+    0
+  end
 end
 
 
 
+
+def main(args)
+  if args.length != 2
+    return usage
+  end
+  subcommand_name = args[0]
+  vimup_info_filename = args[1] + '.vimup'
+
+  v = VimupCore.new vimup_info_filename
+  v.do_subcommand subcommand_name
+end
 
 def usage()
   print <<END
@@ -83,33 +138,9 @@ Usage: vimup {command} {script-name}
   update_package
   new_package
 END
-  exit 1
+  1
 end
 
-
-def main()
-  if ARGV.length != 2
-    usage
-  end
-  command_name = ARGV[0].gsub('-', '_')
-  vimup_info_filename = ARGV[1] + '.vimup'
-
-  vimup_info = load_vimup_file vimup_info_filename
-  action = method(
-    case command_name
-    when 'update_details'
-      :action_update_details
-    when 'update_package'
-      :action_update_package
-    when 'new_package'
-      :action_new_package
-    else
-      raise ArgumentError, 'Invalid command ' + command_name.inspect
-    end
-  )
-  action.call vimup_info
-end
-
-exit main
+exit main(ARGV)
 
 # __END__
