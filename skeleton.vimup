@@ -1,9 +1,9 @@
-script_name: skeleton (test)
+script_name: skeleton
 script_id: '2291'
 script_type: utility
 script_package: '{script_name}-{version}.zip'
 required_vim_version: '7.0'
-summary: Skeleton for newly created files (test)
+summary: Skeleton for newly created files
 
 detailed_description: |
   *skeleton* is a Vim plugin to set up a skeleton for a newly created buffer.
@@ -12,10 +12,8 @@ detailed_description: |
   Requirements:
   - Vim 7.1 or later
 
-  (test)
-
 install_details: |
-  (test)
+  ...
 
 versions:
 - '0.0.1': |
