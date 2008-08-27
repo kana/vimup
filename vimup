@@ -121,7 +121,20 @@ class VimupCore
     if upload_page.uri != URI(uri_upload_form)
       raise RuntimeError, 'Failed to prepare'
     end
-    pp upload_page
+
+    form = upload_page.form 'script'
+    _ = @versions[0]
+    latest_version_number = _.keys[0]
+    latest_version_info = _[latest_version_number]
+    form.script_version = latest_version_number
+    form.version_comment = latest_version_info['comment']
+    option_with_value(
+      form.fields.name('vim_version').options,
+      latest_version_info['required_vim_version']
+    ).select
+    form.file_uploads.first.file_name = @script_package.
+      sub('{script-name}', @script_name).
+      sub('{version}', latest_version_number)
 
     message 'update-script has been succeeded'
     0
@@ -131,6 +144,16 @@ class VimupCore
     pp 'subcommand_new_script'
     0
   end
+end
+
+def option_with_value(options, value)
+  options.each do |o|
+    if o.value == value
+      return o
+    end
+  end
+
+  raise RuntimeError, 'No option with value #{value.inspect}'
 end
 
 
