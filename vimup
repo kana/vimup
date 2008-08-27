@@ -60,7 +60,12 @@ class VimupCore
     username = ask 'Username: '
     password = ask('Password: ') {|q| q.echo = false}
 
-    login_page = @agent.get 'http://www.vim.org/login.php'
+    uri_login =  'http://www.vim.org/login.php'
+    login_page = @agent.get uri_login
+    if login_page.uri != URI(uri_login)
+      raise RuntimeError, 'Failed to fetch login uri'
+    end
+
     form = login_page.form 'login'
     form.userName = username
     form.password = password
@@ -80,10 +85,12 @@ class VimupCore
     login
 
     message 'prepare ...'
-    edit_page = @agent.get(
-                  'http://www.vim.org/scripts/edit_script.php?script_id=' +
-                  @script_id
-                )
+    uri_edit = 'http://www.vim.org/scripts/edit_script.php?script_id=' +
+               @script_id
+    edit_page = @agent.get uri_edit
+    if edit_page.uri != URI(uri_edit)
+      raise RuntimeError, 'Failed to fetch edit uri'
+    end
     form = edit_page.form 'script'
     form.script_name = @script_name
     form.summary = @summary
