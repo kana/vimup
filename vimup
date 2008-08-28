@@ -132,9 +132,20 @@ class VimupCore
       form.fields.name('vim_version').options,
       latest_version_info['required_vim_version']
     ).select
-    form.file_uploads.first.file_name = @script_package.
-      sub('{script-name}', @script_name).
-      sub('{version}', latest_version_number)
+    script_package = @script_package.
+                     sub('{script-name}', @script_name).
+                     sub('{version}', latest_version_number)
+    if !File.exists?(script_package)
+      raise RuntimeError, "No such package: #{script_package.inspect}"
+    end
+    form.file_uploads.first.file_name = script_package
+
+    result_page = @agent.submit form, form.buttons.first
+    if result_page.uri != URI(
+        'http://www.vim.org/scripts/script.php?script_id=' +
+        @script_id)
+      raise RuntimeError, 'Failed to upload package'
+    end
 
     message 'update-script has been succeeded'
     0
