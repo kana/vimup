@@ -186,31 +186,33 @@ end
 
 
 
-def main(args)
-  if args.length != 2
-    return usage
-  end
-  subcommand_name = args[0]
-  vimup_info_filename = args[1] + '.vimup'
-
-  v = VimupCore.new vimup_info_filename
-  v.do_subcommand subcommand_name
-end
-
-def usage()
-  print <<END
-Usage: vimup {command} {script-name}
-
-{command}
-END
-  VimupCore.public_instance_methods.sort.each do |m|
-    if /^subcommand_/ =~ m
-      print "  #{m.sub('subcommand_', '').gsub('_', '-')}\n"
+if __FILE__ == $0
+  def main(args)
+    if args.length != 2
+      return usage
     end
-  end
-  1
-end
+    subcommand_name = args[0]
+    vimup_info_filename = args[1] + '.vimup'
 
-exit main(ARGV)
+    v = VimupCore.new vimup_info_filename
+    v.do_subcommand subcommand_name
+  end
+
+  def usage()
+    print <<END
+  Usage: vimup {command} {script-name}
+
+  {command}
+END
+    VimupCore.public_instance_methods.sort.each do |m|
+      if /^subcommand_/ =~ m
+        print "  #{m.sub('subcommand_', '').gsub('_', '-')}\n"
+      end
+    end
+    1
+  end
+
+  exit main(ARGV)
+end
 
 # __END__
