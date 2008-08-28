@@ -1,29 +1,26 @@
-script_name: skeleton
-script_id: '2291'
+script_name: sample
+script_id: '0'
 script_type: utility
 script_package: '{script_name}-{version}.zip'
 required_vim_version: '7.0'
-summary: Skeleton for newly created files
+summary: Sample script
 
 detailed_description: |
-  *skeleton* is a Vim plugin to set up a skeleton for a newly created buffer.
+  This is a sample script.
 
 
   Requirements:
-  - Vim 7.1 or later
+  - Vim 7.2 or later
 
 install_details: |
   ...
 
 versions:
 - '0.0.1': |
-  - Fix to suppress extra message if there is no autocmd for
-    |User:plugin-skeleton-detect|.
-  - Fix not to do the default |:SkeletonLoad| if 'filetype' of the
-    current buffer is unknown.
+    - Fix typos.
 
 - '0.0.0': |
-  - Initial version.
+    - Initial version.
 
 # __END__
 # vim: filetype=yaml
