@@ -28,7 +28,7 @@ class VimupCore
   end
 
   def message(s)
-    print s, "\n" if @verbose_p
+    puts s if @verbose_p
   end
 
   def load_vimup_file(filename)
@@ -206,7 +206,7 @@ if __FILE__ == $0
 END
     VimupCore.public_instance_methods.sort.each do |m|
       if /^subcommand_/ =~ m
-        print "  #{m.sub('subcommand_', '').gsub('_', '-')}\n"
+        puts "  #{m.sub('subcommand_', '').gsub('_', '-')}"
       end
     end
     1
