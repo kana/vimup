@@ -202,10 +202,12 @@ def usage()
 Usage: vimup {command} {script-name}
 
 {command}
-  update_details
-  update_package
-  new_package
 END
+  VimupCore.public_instance_methods.sort.each do |m|
+    if /^subcommand_/ =~ m
+      print "  #{m.sub('subcommand_', '').gsub('_', '-')}\n"
+    end
+  end
   1
 end
 
