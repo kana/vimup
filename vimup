@@ -75,6 +75,17 @@ class VimupCore
     end
   end
 
+  def current_script_version(page)
+    page.search('p').each do |p|
+      m = /Current script version is ([^ ]+)/.match(p.inner_text)
+      if m != nil
+        return m[1]
+      end
+    end
+
+    raise RuntimeError, 'Invalid page'
+  end
+
   def do_subcommand(subcommand_name)
     message "Start #{subcommand_name} ..."
     @agent = WWW::Mechanize.new
@@ -128,6 +139,11 @@ class VimupCore
     latest_version_info = _[latest_version_number]
     form.script_version = latest_version_number
     form.version_comment = latest_version_info['comment']
+    if latest_version_number == current_script_version(upload_page)
+      message 'Already up to date'
+      return 0
+    end
+    pp current_script_version(upload_page)
     option_with_value(
       form.fields.name('vim_version').options,
       latest_version_info['required_vim_version']
