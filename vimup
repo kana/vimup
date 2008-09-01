@@ -149,7 +149,7 @@ class VimupCore
       latest_version_info['required_vim_version']
     ).select
     script_package = @script_package.
-                     sub('{script-name}', @script_name).
+                     sub('{script_name}', @script_name).
                      sub('{version}', latest_version_number)
     if !File.exists?(script_package)
       raise RuntimeError, "No such package: #{script_package.inspect}"
