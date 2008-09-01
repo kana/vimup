@@ -139,11 +139,12 @@ class VimupCore
     latest_version_info = _[latest_version_number]
     form.script_version = latest_version_number
     form.version_comment = latest_version_info['comment']
-    if latest_version_number == current_script_version(upload_page)
+    c = current_script_version(upload_page)
+    message "current version: #{c}"
+    if latest_version_number == c
       message 'Already up to date'
       return 0
     end
-    pp current_script_version(upload_page)
     option_with_value(
       form.fields.name('vim_version').options,
       latest_version_info['required_vim_version']
