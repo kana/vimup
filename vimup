@@ -141,6 +141,7 @@ class VimupCore
     form.version_comment = latest_version_info['comment']
     c = current_script_version(upload_page)
     message "current version: #{c}"
+    message "new version to be uploaded: #{latest_version_number}"
     if latest_version_number == c
       message 'Already up to date'
       return 0
