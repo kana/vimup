@@ -170,7 +170,48 @@ class VimupCore
   end
 
   def subcommand_new_script()
-    pp 'subcommand_new_script'
+    login
+
+    message 'prepare ...'
+    uri_upload_form = ('http://www.vim.org/scripts/add_script.php')
+    upload_page = @agent.get uri_upload_form
+    if upload_page.uri != URI(uri_upload_form)
+      raise RuntimeError, 'Failed to prepare'
+    end
+
+    form = upload_page.form 'script'
+    form.script_name = @script_name
+    form.script_type = @script_type
+    _ = @versions[0]
+    latest_version_number = _.keys[0]
+    latest_version_info = _[latest_version_number]
+    form.script_version = latest_version_number
+    option_with_value(
+      form.fields.name('vim_version').options,
+      latest_version_info['required_vim_version']
+    ).select
+    form.summary = @summary
+    form.description = @detailed_description
+    form.install_details = @install_details
+    script_package = @script_package.
+                     sub('{script_name}', @script_name).
+                     sub('{version}', latest_version_number)
+    if !File.exists?(script_package)
+      raise RuntimeError, "No such package: #{script_package.inspect}"
+    end
+    form.file_uploads.first.file_name = script_package
+
+    result_page = @agent.submit form, form.buttons.first
+    pp result_page
+    if Regexp.new(
+         Regexp.escape('http://www.vim.org/scripts/script.php?script_id=').to_s
+         + '(\d+)'
+       ) =~ result_page.uri.to_s
+      raise RuntimeError, 'Failed to upload package'
+    end
+
+    message 'new-script has been succeeded'
+    message 'script id is #{Regexp.last_match(1)}'
     0
   end
 end
