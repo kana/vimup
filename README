@@ -1,0 +1,102 @@
+vimup - A tool to automate uploading Vim scripts to www.vim.org
+===============================================================
+
+Requirements
+------------
+
+- Ruby 1.8.7 or later
+- highline 1.4.0 or later
+- mechanize 0.7.7 or later
+- An account for www.vim.org
+
+
+
+
+Usage
+-----
+
+	vimup new-script {script-name}
+		Upload a new script package of non-existing script.
+
+	vimup update-script {script-name}
+		Upload a new script package of existing script.
+
+	vimup update-details {script-name}
+		Update the description in the page for the script.
+
+Where {script-name} is arbitrary string.  vimup reads the file named
+"{script-name}.vimup" for the meta data of a script, for example, the name,
+the version, the description and various information of a script.
+
+The content of "{script-name}.vimup" is a hash written in YAML format.
+- See sample.vimup to know how to write the meta data of a script.
+- See also "vimup-info-generator" which is available in
+  <http://github.com/kana/config/tree/master/vimup-info-generator>.
+  It generates "{script-name}.vimup" from the document file for a script.
+  Though it is ad hoc one, it is still useful to automate this task.
+
+In "{script-name}.vimup", you have to write the following items:
+
+"script_name"
+	The name of a script.
+
+"script_id"
+	The ID of a script, where ID is in the URI of the script page:
+	http://www.vim.org/scripts/script.php?script_id={ID}
+
+	This item can be ommited for "new-script" command.  Because the ID of
+	a script is not undefined at the moment.
+
+"script_type"
+	The type of a script.  Valid value is one of the following:
+
+	- color scheme
+	- ftplugin
+	- game
+	- indent
+	- patch
+	- syntax
+	- utility
+
+"script_package"
+	The name of the file to be uploaded.  This value may have the
+	following escape sequences:
+
+	{script_name}
+		Replaced with the value of "script_name".
+
+	{version}
+		Replaced with the latest version number listed in "version".
+
+"required_vim_version"
+	The required Vim version.  Valid value is one of the followings:
+
+	- 5.7
+	- 6.0
+	- 7.0
+	- 7.2
+
+"summary"
+	The one-line summary of what a script is.  This value should be
+	shorter.  This value is used in various places in www.vim.org, for
+	example, the title of the page for a script.
+
+"detailed_description"
+	The description which is showed in the page for a script.
+
+"install_details"
+	The details of how to install a script.  Like "detailed_description",
+	this value is also showed in the page for a script.
+
+"versions"
+	List of pairs of a version number and the description for that
+	version.  A pair is expressed as a hash with single item, where the
+	key of the item is a version number and the corresponding value is
+	the description about the changes in that version.
+
+	Note that the first item of this list must be for the latest version.
+
+
+
+
+__END__
