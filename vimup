@@ -243,9 +243,9 @@ if __FILE__ == $0
 
   def usage()
     print <<END
-  Usage: vimup {command} {script-name}
+Usage: vimup {command} {script-name}
 
-  {command}
+{command}
 END
     VimupCore.public_instance_methods.sort.each do |m|
       if /^subcommand_/ =~ m
