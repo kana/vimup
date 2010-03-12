@@ -56,10 +56,9 @@ the version, the description and various information of a script.
 
 The content of "{script-name}.vimup" is a hash written in YAML format.
 - See sample.vimup to know how to write the meta data of a script.
-- See also "vimup-info-generator" which is available in
-  <http://github.com/kana/config/tree/master/vimup-info-generator>.
-  It generates "{script-name}.vimup" from the document file for a script.
-  Though it is ad hoc one, it is still useful to automate this task.
+- See also "vimup-info-generator" which generates "{script-name}.vimup" from
+  the document file for a script.  Though it is ad hoc one, it is still useful
+  to automate this task.
 
 In "{script-name}.vimup", you have to write the following items:
 
