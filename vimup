@@ -170,10 +170,14 @@ class VimupCore
       message 'Already up to date'
       return 0
     end
-    option_with_value(
-      form.fields.name('vim_version').options,
-      latest_version_info['required_vim_version']
-    ).select
+    form.fields.each do |f|
+      if f.name == 'vim_version'
+        option_with_value(
+          f.options,
+          latest_version_info['required_vim_version']
+        ).select
+      end
+    end
     script_package = @script_package.
                      sub('{script_name}', @script_name).
                      sub('{version}', latest_version_number)
@@ -210,10 +214,14 @@ class VimupCore
     latest_version_number = _.keys[0]
     latest_version_info = _[latest_version_number]
     form.script_version = latest_version_number
-    option_with_value(
-      form.fields.name('vim_version').options,
-      latest_version_info['required_vim_version']
-    ).select
+    form.fields.each do |f|
+      if f.name == 'vim_version'
+        option_with_value(
+          f.options,
+          latest_version_info['required_vim_version']
+        ).select
+      end
+    end
     form.summary = @summary
     form.description = @detailed_description
     form.install_details = @install_details
