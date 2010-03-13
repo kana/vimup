@@ -234,7 +234,6 @@ class VimupCore
     form.file_uploads.first.file_name = script_package
 
     result_page = @agent.submit form, form.buttons.first
-    pp result_page
     if Regexp.new(
          Regexp.escape('http://www.vim.org/scripts/script.php?script_id=').
          to_s + '(\d+)'
