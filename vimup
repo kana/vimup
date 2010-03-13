@@ -201,6 +201,8 @@ class VimupCore
 
     message 'update-script has been succeeded'
     0
+
+    subcommand_update_details
   end
 
   def subcommand_new_script()
