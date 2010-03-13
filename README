@@ -1,9 +1,9 @@
 vimup - A tool to automate uploading Vim scripts to www.vim.org
 ===============================================================
 
-Copyright (C) 2008 kana <http://whileimautomaton.net/>
+Copyright (C) 2008-2010 kana <http://whileimautomaton.net/>
 
-License: MIT license
+License: So-called MIT/X license
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -46,9 +46,10 @@ Usage
 
 	vimup update-script {script-name}
 		Upload a new script package of existing script.
+		Update also the description in the script page.
 
 	vimup update-details {script-name}
-		Update the description in the page for the script.
+		Update the description in the script page.
 
 Where {script-name} is arbitrary string.  vimup reads the file named
 "{script-name}.vimup" for the meta data of a script, for example, the name,
