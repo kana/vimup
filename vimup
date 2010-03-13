@@ -48,6 +48,7 @@ class VimupCore
 
   def initialize(vimup_info_filename, verbose_p=true)
     @verbose_p = verbose_p
+    @authorized_p = false
     load_vimup_file vimup_info_filename
   end
 
@@ -78,6 +79,9 @@ class VimupCore
   end
 
   def login()
+    if @authorized_p
+      return
+
     message 'login ...'
 
       # TODO: use also pit
@@ -97,6 +101,8 @@ class VimupCore
     if account_page.uri != URI('http://www.vim.org/account/index.php')
       raise RuntimeError, 'Failed to login'
     end
+
+    @authorized_p = true
   end
 
   def current_script_version(page)
