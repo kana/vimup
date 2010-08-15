@@ -289,7 +289,7 @@ Usage: vimup {command} {script-name}
 END
     VimupCore.public_instance_methods.sort.each do |m|
       if /^subcommand_/ =~ m
-        puts "  #{m.sub('subcommand_', '').gsub('_', '-')}"
+        puts "  #{m.to_s.sub('subcommand_', '').gsub('_', '-')}"
       end
     end
     1
