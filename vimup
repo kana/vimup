@@ -119,7 +119,7 @@ class VimupCore
 
   def do_subcommand(subcommand_name)
     message "Start #{subcommand_name} ..."
-    @agent = WWW::Mechanize.new
+    @agent = Mechanize.new
     method('subcommand_' + subcommand_name.gsub('-', '_')).call
   end
 
